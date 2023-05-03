@@ -1,0 +1,128 @@
+name: Release
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.17"
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-code-dependencies-${{ hashFiles('go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-code-dependencies
+      - run: |
+          go vet ./...
+          go test ./...
+    
+  version:
+    name: Semantic versioning
+    needs: build
+    runs-on: ubuntu-latest
+    outputs:
+      new_release_published: "${{ steps.semantic.outputs.new_release_published }}"
+      new_release_version: "${{ steps.semantic.outputs.new_release_version }}"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.17"
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-code-dependencies-${{ hashFiles('go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-code-dependencies
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v2
+        id: semantic
+        with:
+          extra_plugins: |
+            @semantic-release/commit-analyzer
+            @semantic-release/release-notes-generator
+            @semantic-release/changelog
+            @semantic-release/git
+            @semantic-release/exec
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  binary_release:
+    name: Binary release
+    needs: version
+    if: ${{ needs.version.outputs.new_release_published == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set git tag
+        run: git tag ${{ needs.version.outputs.new_release_version }}
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - name: Install vembed
+        run: go install github.com/NoUseFreak/go-vembed/vembed@latest
+      - name: Prepare vembed info
+        run: echo "VEMBED=$(vembed)" >> $GITHUB_ENV
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+  docker_release:
+    name: Docker release
+    needs: version
+    if: ${{ needs.version.outputs.new_release_published == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Current
+        uses: actions/checkout@v2
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}},value=${{ needs.version.outputs.new_release_version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.version.outputs.new_release_version }}
+            type=semver,pattern={{major}},value=${{ needs.version.outputs.new_release_version }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha

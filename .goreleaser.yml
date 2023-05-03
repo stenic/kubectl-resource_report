@@ -1,0 +1,93 @@
+env:
+  - PROJECT_DESCRIPTION=
+  - PROJECT_HOMEPAGE=https://stenic.io
+  - LICENSE=MIT
+
+before:
+  hooks:
+    - go mod tidy
+builds:
+- env:
+    - CGO_ENABLED=0
+  goos:
+    - linux
+    - darwin
+    - windows
+  goarch:
+    - "386"
+    - amd64
+    - arm
+    - arm64
+  goarm:
+    - "6"
+    - "7"
+  mod_timestamp: '{{ .CommitTimestamp }}'
+  flags:
+    - -trimpath
+  ldflags:
+    - '{{ .Env.VEMBED }}'
+
+checksum:
+  name_template: 'checksums.txt'
+
+archives:
+  - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+    format_overrides:
+    - goos: windows
+      format: zip
+    files:
+      - README.md
+      - LICENSE
+
+brews:
+  - tap:
+      owner: stenic
+      name: homebrew-tap
+    folder: Formula
+    homepage: "{{ .Env.PROJECT_HOMEPAGE }}"
+    description: "{{ .Env.PROJECT_DESCRIPTION }}"
+    license: "{{ .Env.LICENSE }}"
+    test: |
+      system "#{bin}/{{ .ProjectName }} -v"
+    dependencies: []
+    install: |-
+      bin.install "{{ .ProjectName }}"
+
+rigs:
+  - rig:
+      owner: stenic
+      name: fish-food
+    homepage: "{{ .Env.PROJECT_HOMEPAGE }}"
+    description: "{{ .Env.PROJECT_DESCRIPTION }}"
+    license: "{{ .Env.LICENSE }}"
+
+scoop:
+  bucket:
+    owner: stenic
+    name: scoop-bucket
+  homepage: "{{ .Env.PROJECT_HOMEPAGE }}"
+  description: "{{ .Env.PROJECT_DESCRIPTION }}"
+  license: "{{ .Env.LICENSE }}"
+
+nfpms:
+  - file_name_template: '{{ .ConventionalFileName }}'
+    id: packages
+    homepage: "{{ .Env.PROJECT_HOMEPAGE }}"
+    description: "{{ .Env.PROJECT_DESCRIPTION }}"
+    maintainer: Dries De Peuter <dries@stenic.io>
+    license: "{{ .Env.LICENSE }}"
+    vendor: Stenic
+    formats:
+    - apk
+    - deb
+    - rpm
+    dependencies: []
+    recommends: []
+
+# snapcrafts:
+#   - name_template: '{{ .ProjectName }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+#     summary: "{{ .Env.PROJECT_DESCRIPTION }}"
+#     description: "{{ .Env.PROJECT_DESCRIPTION }}"
+#     grade: devel
+#     confinement: strict
+#     publish: true
