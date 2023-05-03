@@ -13,7 +13,7 @@ jobs:
       - name: Setup go
         uses: actions/setup-go@v2
         with:
-          go-version: "1.17"
+          go-version: "1.19"
       - uses: actions/cache@v2
         with:
           path: |
@@ -33,11 +33,14 @@ jobs:
       new_release_published: "${{ steps.semantic.outputs.new_release_published }}"
       new_release_version: "${{ steps.semantic.outputs.new_release_version }}"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup go
         uses: actions/setup-go@v2
         with:
-          go-version: "1.17"
+          go-version: "1.19"
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
       - uses: actions/cache@v2
         with:
           path: |
@@ -46,7 +49,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-code-dependencies
       - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v2
+        uses: cycjimmy/semantic-release-action@v3
         id: semantic
         with:
           extra_plugins: |
@@ -73,7 +76,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Install vembed
         run: go install github.com/NoUseFreak/go-vembed/vembed@latest
       - name: Prepare vembed info

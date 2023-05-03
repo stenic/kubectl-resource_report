@@ -1,10 +1,10 @@
-FROM golang:1.17 as builder
+FROM golang:1.19 as builder
 
 WORKDIR /workspace
 COPY go.* .
 RUN go mod download
 COPY main.go main.go
-RUN CGO_ENABLED=0 GOOS=linux go build -a -o /project main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -o /kubectl-resource-report main.go
 
 
 # Use distroless as minimal base image to package the project
@@ -12,6 +12,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -o /project main.go
 FROM gcr.io/distroless/static:nonroot
 
 WORKDIR /
-COPY --from=builder /project .
-ENTRYPOINT ["/project"]
+COPY --from=builder /kubectl-resource-report .
+ENTRYPOINT ["/kubectl-resource-report"]
 
