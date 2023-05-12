@@ -1,10 +1,11 @@
-module github.com/stenic/kubectl-resource-report
+module github.com/stenic/kubectl-resource_report
 
 go 1.19
 
 require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/jedib0t/go-pretty/v6 v6.4.6
+	github.com/spf13/cobra v1.6.0
 	k8s.io/apimachinery v0.27.1
 	k8s.io/client-go v0.27.1
 	k8s.io/metrics v0.27.1
@@ -21,7 +22,6 @@ require (
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/spf13/cobra v1.6.0 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
 	sigs.k8s.io/kustomize/api v0.13.2 // indirect

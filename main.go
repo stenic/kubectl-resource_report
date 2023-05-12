@@ -70,7 +70,7 @@ func newCmd(streams genericclioptions.IOStreams) *cobra.Command {
 
 	cmd.PersistentFlags().StringVarP(&opts.logLevel, "log-level", "l", "", "log level (trace|debug|info|warn|error|fatal|panic)")
 
-	cmd.PersistentFlags().IntVarP(&opts.duration, "duration", "p", 60, "time to collect in seconds")
+	cmd.PersistentFlags().IntVarP(&opts.duration, "duration", "d", 1, "time to collect in seconds")
 
 	cmd.PersistentFlags().Float64Var(&opts.memRequestRatio, "memory-request", 2.5, "memory request/usage ratio")
 	cmd.PersistentFlags().Float64Var(&opts.memLimitRatio, "memory-limit", 1.5, "memory limit/request ration")
