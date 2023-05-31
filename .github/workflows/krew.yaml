@@ -1,0 +1,17 @@
+name: krew release
+on:
+  push:
+    tags:
+      - v*
+jobs:
+  build:
+    name: Krew release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.19"
+      - name: Update new version in krew-index
+        uses: rajatjindal/krew-release-bot@v0.0.43
