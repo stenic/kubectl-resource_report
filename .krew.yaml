@@ -1,0 +1,47 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: resource-report
+spec:
+  version: {{ .TagName }}
+  homepage: https://github.com/stenic/kubectl-resource_report
+  shortDescription: Generate a report of Kubernetes resources
+  description: |
+    Generate a report of Kubernetes resources
+  platforms:
+  - selector:
+      matchLabels:
+        os: darwin
+        arch: amd64
+    {{addURIAndSha "https://github.com/stenic/kubectl-resource_report/releases/download/{{ .TagName }}/kubectl-resource_report_darwin_amd64.tar.gz" .TagName }}
+    bin: kubectl-resource_report
+  - selector:
+      matchLabels:
+        os: darwin
+        arch: arm64
+    {{addURIAndSha "https://github.com/stenic/kubectl-resource_report/releases/download/{{ .TagName }}/kubectl-resource_report_darwin_arm64.tar.gz" .TagName }}
+    bin: kubectl-resource_report
+  - selector:
+      matchLabels:
+        os: linux
+        arch: amd64
+    {{addURIAndSha "https://github.com/stenic/kubectl-resource_report/releases/download/{{ .TagName }}/kubectl-resource_report_linux_amd64.tar.gz" .TagName }}
+    bin: kubectl-resource_report
+  - selector:
+      matchLabels:
+        os: linux
+        arch: arm
+    {{addURIAndSha "https://github.com/stenic/kubectl-resource_report/releases/download/{{ .TagName }}/kubectl-resource_report_linux_armv7.tar.gz" .TagName }}
+    bin: kubectl-resource_report
+  - selector:
+      matchLabels:
+        os: linux
+        arch: arm64
+    {{addURIAndSha "https://github.com/stenic/kubectl-resource_report/releases/download/{{ .TagName }}/kubectl-resource_report_linux_arm64.tar.gz" .TagName }}
+    bin: kubectl-resource_report
+  - selector:
+      matchLabels:
+        os: windows
+        arch: amd64
+    {{addURIAndSha "https://github.com/stenic/kubectl-resource_report/releases/download/{{ .TagName }}/kubectl-resource_report_windows_amd64.zip" .TagName }}
+    bin: kubectl-resource_report
