@@ -3,7 +3,7 @@ kind: Plugin
 metadata:
   name: resource-report
 spec:
-  version: {{ .TagName }}
+  version: v{{ .TagName }}
   homepage: https://github.com/stenic/kubectl-resource_report
   shortDescription: Generate a report of Kubernetes resources
   description: |
