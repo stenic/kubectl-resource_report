@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.4](https://github.com/stenic/kubectl-resource_report/compare/v1.0.3...v1.0.4) (2023-06-03)
+
+
+### Bug Fixes
+
+* Add v in version ([7fba136](https://github.com/stenic/kubectl-resource_report/commit/7fba136194f8fe7528d708aabe3f6a502ddd8366))
+
 ## [1.0.3](https://github.com/stenic/kubectl-resource_report/compare/v1.0.2...v1.0.3) (2023-05-31)
 
 
