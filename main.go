@@ -97,7 +97,7 @@ func run(opts *Options) error {
 		time.Sleep(100 * time.Millisecond)
 	}
 
-	render(specs)
+	render(specs, opts.allNamespaces)
 
 	return nil
 }
@@ -207,21 +207,24 @@ func metrics(opts *Options, pw progress.Writer, specs PodContainers) error {
 	return nil
 }
 
-func render(specs PodContainers) {
+func render(specs PodContainers, showNamespace bool) {
 
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 	t.Style().Format.Footer = text.FormatDefault
 	t.SetColumnConfigs([]table.ColumnConfig{
-		{Number: 3, Align: text.AlignRight},
-		{Number: 4, Align: text.AlignRight},
-		{Number: 5, Align: text.AlignRight},
-		{Number: 6, Align: text.AlignRight},
-		{Number: 7, Align: text.AlignRight},
-		{Number: 8, Align: text.AlignRight},
+		{Name: "Req CPU", Align: text.AlignRight},
+		{Name: "Lim CPU", Align: text.AlignRight},
+		{Name: "Use CPU", Align: text.AlignRight},
+		{Name: "Req Mem", Align: text.AlignRight},
+		{Name: "Lim Mem", Align: text.AlignRight},
+		{Name: "Use Mem", Align: text.AlignRight},
 	})
 
 	rows := table.Row{"Pod", "Container", "Req CPU", "Lim CPU", "Use CPU", "Req Mem", "Lim Mem", "Use Mem"}
+	if showNamespace {
+		rows = append(table.Row{"Namespace"}, rows...)
+	}
 	t.AppendHeader(rows)
 
 	t.SuppressEmptyColumns()
@@ -236,6 +239,9 @@ func render(specs PodContainers) {
 			s.PodName,
 			s.ContainerName,
 		}
+		if showNamespace {
+			data = append([]interface{}{s.Namespace}, data...)
+		}
 		cpursum += s.Requests.CPU
 		cpulsum += s.Limits.CPU
 		cpuusum += s.Usage.CPU
@@ -246,6 +252,9 @@ func render(specs PodContainers) {
 		t.AppendRow(data)
 	}
 	footerRow := table.Row{"Total", "", clean(fmt.Sprintf("%dm", cpursum)), clean(fmt.Sprintf("%dm", cpulsum)), clean(fmt.Sprintf("%dm", cpuusum)), clean(humanize.IBytes(memrsum)), clean(humanize.IBytes(memlsum)), clean(humanize.IBytes(memusum))}
+	if showNamespace {
+		footerRow = append(table.Row{""}, footerRow...)
+	}
 	t.AppendFooter(footerRow)
 	t.AppendFooter(table.Row{""})
 	t.AppendFooter(table.Row{
